@@ -13,8 +13,8 @@ class ModelSelectRequest(BaseModel):
     age_group: str = Field(..., description="Age group: young, middle, or senior")
     ethnicity: Optional[str] = Field(None, description="Optional ethnicity preference")
     
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "gender": "male",
                 "size": "M",
@@ -22,6 +22,7 @@ class ModelSelectRequest(BaseModel):
                 "ethnicity": "asian"
             }
         }
+    }
 
 
 class ModelInfo(BaseModel):
@@ -43,8 +44,8 @@ class ModelListResponse(BaseModel):
     models: List[ModelInfo]
     total: int
     
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "models": [
                     {
@@ -66,6 +67,7 @@ class ModelListResponse(BaseModel):
                 "total": 1
             }
         }
+    }
 
 
 class TryOnRequest(BaseModel):
@@ -77,8 +79,8 @@ class TryOnRequest(BaseModel):
     age_group: str = Field(default="young", description="Age group: young, middle, or senior")
     ethnicity: Optional[str] = Field(None, description="Optional ethnicity preference")
     
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "clothing_image": "data:image/png;base64,iVBORw0KGgoAAAANS...",
                 "clothing_type": "shirt",
@@ -88,6 +90,7 @@ class TryOnRequest(BaseModel):
                 "ethnicity": "asian"
             }
         }
+    }
 
 
 class TryOnResponse(BaseModel):
@@ -95,15 +98,16 @@ class TryOnResponse(BaseModel):
     success: bool
     message: str
     result_image: Optional[str] = Field(None, description="Base64 encoded result image")
-    model_used: Optional[ModelInfo] = None
+    selected_model: Optional[ModelInfo] = None
     
-    class Config:
-        schema_extra = {
+    model_config = {
+        "protected_namespaces": (),
+        "json_schema_extra": {
             "example": {
                 "success": True,
                 "message": "Try-on completed successfully",
                 "result_image": "data:image/png;base64,iVBORw0KGgoAAAANS...",
-                "model_used": {
+                "selected_model": {
                     "id": "male_m_young_asian_001",
                     "gender": "male",
                     "size": "M",
@@ -112,6 +116,7 @@ class TryOnResponse(BaseModel):
                 }
             }
         }
+    }
 
 
 class SizeMeasurementsRequest(BaseModel):
@@ -122,8 +127,8 @@ class SizeMeasurementsRequest(BaseModel):
     hip: float = Field(..., description="Hip measurement in cm")
     height: float = Field(..., description="Height in cm")
     
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "gender": "male",
                 "chest": 98,
@@ -132,6 +137,7 @@ class SizeMeasurementsRequest(BaseModel):
                 "height": 177
             }
         }
+    }
 
 
 class SizeMeasurementsResponse(BaseModel):
@@ -139,8 +145,8 @@ class SizeMeasurementsResponse(BaseModel):
     recommended_size: str
     measurements: Dict[str, Any]
     
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "recommended_size": "M",
                 "measurements": {
@@ -151,6 +157,7 @@ class SizeMeasurementsResponse(BaseModel):
                 }
             }
         }
+    }
 
 
 class HealthResponse(BaseModel):

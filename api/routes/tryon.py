@@ -125,7 +125,7 @@ async def virtual_tryon(request: TryOnRequest):
                 success=False,
                 message="No matching model found for the specified criteria",
                 result_image=None,
-                model_used=None
+                selected_model=None
             )
         
         # Get model metadata
@@ -140,7 +140,7 @@ async def virtual_tryon(request: TryOnRequest):
                 success=False,
                 message="Model image not found",
                 result_image=None,
-                model_used=model_metadata
+                selected_model=model_metadata
             )
         
         model_image = image_loader.load_image(str(model_image_path))
@@ -150,7 +150,7 @@ async def virtual_tryon(request: TryOnRequest):
                 success=False,
                 message="Failed to load model image",
                 result_image=None,
-                model_used=model_metadata
+                selected_model=model_metadata
             )
         
         # Step 3: Decode clothing image
@@ -163,7 +163,7 @@ async def virtual_tryon(request: TryOnRequest):
                 success=False,
                 message="URL-based clothing images not yet supported. Please use base64 encoded images.",
                 result_image=None,
-                model_used=model_metadata
+                selected_model=model_metadata
             )
         else:
             clothing_image = decode_base64_image(request.clothing_image)
@@ -173,7 +173,7 @@ async def virtual_tryon(request: TryOnRequest):
                 success=False,
                 message="Failed to decode clothing image",
                 result_image=None,
-                model_used=model_metadata
+                selected_model=model_metadata
             )
         
         # Step 4: Perform try-on
@@ -190,7 +190,7 @@ async def virtual_tryon(request: TryOnRequest):
                 success=False,
                 message="Virtual try-on failed",
                 result_image=None,
-                model_used=model_metadata
+                selected_model=model_metadata
             )
         
         # Step 5: Encode result image
@@ -202,7 +202,7 @@ async def virtual_tryon(request: TryOnRequest):
                 success=False,
                 message="Failed to encode result image",
                 result_image=None,
-                model_used=model_metadata
+                selected_model=model_metadata
             )
         
         # Success!
@@ -212,7 +212,7 @@ async def virtual_tryon(request: TryOnRequest):
             success=True,
             message="Virtual try-on completed successfully",
             result_image=result_base64,
-            model_used=model_metadata
+            selected_model=model_metadata
         )
         
     except Exception as e:

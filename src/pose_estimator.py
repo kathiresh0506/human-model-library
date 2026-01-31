@@ -10,10 +10,12 @@ logger = logging.getLogger(__name__)
 
 try:
     import mediapipe as mp
+    from mediapipe.python.solutions import pose as mp_pose
     MEDIAPIPE_AVAILABLE = True
 except ImportError:
     logger.warning("MediaPipe not available. Pose estimation will use fallback mode.")
     MEDIAPIPE_AVAILABLE = False
+    mp_pose = None
 
 
 class PoseEstimator:
@@ -54,9 +56,9 @@ class PoseEstimator:
         self.min_detection_confidence = min_detection_confidence
         self.min_tracking_confidence = min_tracking_confidence
         
-        if MEDIAPIPE_AVAILABLE:
-            self.mp_pose = mp.solutions.pose
-            self.pose = self.mp_pose.Pose(
+        if MEDIAPIPE_AVAILABLE and mp_pose is not None:
+            self.mp_pose = mp_pose
+            self.pose = mp_pose.Pose(
                 min_detection_confidence=min_detection_confidence,
                 min_tracking_confidence=min_tracking_confidence
             )
