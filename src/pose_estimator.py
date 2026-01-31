@@ -86,8 +86,8 @@ class PoseEstimator:
             results = self.pose.process(image)
             
             if not results.pose_landmarks:
-                logger.warning("No pose landmarks detected")
-                return None
+                logger.warning("No pose landmarks detected, using fallback keypoints")
+                return self._get_fallback_keypoints(image)
             
             # Extract keypoints
             height, width = image.shape[:2]
@@ -102,8 +102,8 @@ class PoseEstimator:
             return keypoints
             
         except Exception as e:
-            logger.error(f"Error detecting keypoints: {e}")
-            return None
+            logger.error(f"Error detecting keypoints: {e}, using fallback")
+            return self._get_fallback_keypoints(image)
     
     def _get_fallback_keypoints(self, image: np.ndarray) -> Dict[str, Tuple[int, int]]:
         """

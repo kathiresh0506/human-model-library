@@ -99,6 +99,44 @@ result = fitter.process_full_tryon(
 )
 ```
 
+## 🎨 Quick Demo
+
+Want to test the virtual try-on without setting up the full API? Use our demo scripts!
+
+### Generate Sample Data
+
+First, generate sample model images and clothing items:
+
+```bash
+python scripts/generate_all_samples.py
+```
+
+This creates:
+- 3 sample human models (male/female, different sizes and ethnicities)
+- 3 sample clothing items (2 t-shirts, 1 pants)
+- A test try-on result
+
+### Run Demo Try-On
+
+Try different combinations:
+
+```bash
+# Basic demo with male model and blue t-shirt
+python scripts/demo_tryon.py --gender male --size M --clothing samples/clothing/tshirt_blue.png
+
+# Female model with red t-shirt
+python scripts/demo_tryon.py --gender female --size S --clothing samples/clothing/tshirt_red.png
+
+# Male model with pants
+python scripts/demo_tryon.py --gender male --size L --age_group middle --ethnicity african --clothing samples/clothing/pants_black.png
+```
+
+### View Output
+
+Check the `output/` folder for:
+- `demo_result.png` - The try-on result
+- `comparison_demo_result.png` - Side-by-side comparison
+
 ## 📚 API Documentation
 
 ### Core Endpoints
