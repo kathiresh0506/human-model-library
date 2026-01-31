@@ -1,0 +1,20 @@
+{
+  "id": "male_m_young_asian_001",
+  "gender": "male",
+  "size": "M",
+  "age_group": "young",
+  "ethnicity": "asian",
+  "measurements": {
+    "chest": 98,
+    "waist": 83,
+    "hip": 98,
+    "height": 177
+  },
+  "poses": ["front", "side", "back"],
+  "created_at": "2024-01-01",
+  "image_paths": {
+    "front": "male/M/young/asian/front.png",
+    "side": "male/M/young/asian/side.png",
+    "back": "male/M/young/asian/back.png"
+  }
+}

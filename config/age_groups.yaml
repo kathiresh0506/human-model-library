@@ -1,0 +1,45 @@
+age_groups:
+  young:
+    name: "Young Adult"
+    age_range: [18, 30]
+    description: "Young adults with youthful features"
+    characteristics:
+      physical:
+        - "Smooth skin texture"
+        - "Higher muscle tone"
+        - "Athletic posture"
+        - "Minimal wrinkles"
+      body_composition:
+        - "Lower body fat percentage"
+        - "Better muscle definition"
+        - "Higher metabolism"
+      
+  middle:
+    name: "Middle Age"
+    age_range: [31, 50]
+    description: "Middle-aged adults with mature features"
+    characteristics:
+      physical:
+        - "Some fine lines"
+        - "Maintained muscle tone"
+        - "Slight body changes"
+        - "Mature appearance"
+      body_composition:
+        - "Moderate body fat"
+        - "Maintained fitness"
+        - "Stable metabolism"
+      
+  senior:
+    name: "Senior"
+    age_range: [51, 100]
+    description: "Senior adults with aged features"
+    characteristics:
+      physical:
+        - "Visible wrinkles"
+        - "Lower muscle tone"
+        - "Relaxed posture"
+        - "Gray or white hair"
+      body_composition:
+        - "Higher body fat percentage"
+        - "Lower muscle mass"
+        - "Slower metabolism"
