@@ -1,0 +1,139 @@
+male:
+  S:
+    chest:
+      min: 86
+      max: 91
+      avg: 88.5
+    waist:
+      min: 71
+      max: 76
+      avg: 73.5
+    hip:
+      min: 86
+      max: 91
+      avg: 88.5
+    height:
+      min: 170
+      max: 175
+      avg: 172.5
+  M:
+    chest:
+      min: 96
+      max: 101
+      avg: 98.5
+    waist:
+      min: 81
+      max: 86
+      avg: 83.5
+    hip:
+      min: 96
+      max: 101
+      avg: 98.5
+    height:
+      min: 175
+      max: 180
+      avg: 177.5
+  L:
+    chest:
+      min: 106
+      max: 111
+      avg: 108.5
+    waist:
+      min: 91
+      max: 96
+      avg: 93.5
+    hip:
+      min: 106
+      max: 111
+      avg: 108.5
+    height:
+      min: 178
+      max: 183
+      avg: 180.5
+  XL:
+    chest:
+      min: 116
+      max: 121
+      avg: 118.5
+    waist:
+      min: 101
+      max: 106
+      avg: 103.5
+    hip:
+      min: 116
+      max: 121
+      avg: 118.5
+    height:
+      min: 180
+      max: 185
+      avg: 182.5
+
+female:
+  S:
+    bust:
+      min: 82
+      max: 86
+      avg: 84
+    waist:
+      min: 62
+      max: 66
+      avg: 64
+    hip:
+      min: 88
+      max: 92
+      avg: 90
+    height:
+      min: 160
+      max: 165
+      avg: 162.5
+  M:
+    bust:
+      min: 88
+      max: 92
+      avg: 90
+    waist:
+      min: 68
+      max: 72
+      avg: 70
+    hip:
+      min: 94
+      max: 98
+      avg: 96
+    height:
+      min: 163
+      max: 168
+      avg: 165.5
+  L:
+    bust:
+      min: 96
+      max: 100
+      avg: 98
+    waist:
+      min: 76
+      max: 80
+      avg: 78
+    hip:
+      min: 102
+      max: 106
+      avg: 104
+    height:
+      min: 165
+      max: 170
+      avg: 167.5
+  XL:
+    bust:
+      min: 104
+      max: 108
+      avg: 106
+    waist:
+      min: 84
+      max: 88
+      avg: 86
+    hip:
+      min: 110
+      max: 114
+      avg: 112
+    height:
+      min: 167
+      max: 172
+      avg: 169.5

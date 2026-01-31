@@ -1,0 +1,30 @@
+# Core dependencies
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# Image processing
+opencv-python==4.9.0.80
+numpy==1.26.3
+Pillow==10.2.0
+scikit-image==0.22.0
+
+# Machine learning / pose estimation
+mediapipe==0.10.13
+
+# Configuration
+pyyaml==6.0.1
+
+# API utilities
+python-multipart==0.0.6
+httpx==0.26.0
+
+# Development and testing
+pytest==7.4.4
+pytest-asyncio==0.23.3
+
+# Optional dependencies for advanced features
+# Uncomment if needed:
+# torch==2.1.2
+# torchvision==0.16.2
+# tensorflow==2.15.0

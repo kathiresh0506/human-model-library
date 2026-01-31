@@ -1,0 +1,20 @@
+{
+  "id": "female_s_young_caucasian_001",
+  "gender": "female",
+  "size": "S",
+  "age_group": "young",
+  "ethnicity": "caucasian",
+  "measurements": {
+    "bust": 84,
+    "waist": 64,
+    "hip": 90,
+    "height": 162
+  },
+  "poses": ["front", "side", "back"],
+  "created_at": "2024-01-01",
+  "image_paths": {
+    "front": "female/S/young/caucasian/front.png",
+    "side": "female/S/young/caucasian/side.png",
+    "back": "female/S/young/caucasian/back.png"
+  }
+}

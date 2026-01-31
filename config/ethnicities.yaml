@@ -1,0 +1,60 @@
+ethnicities:
+  asian:
+    name: "Asian"
+    description: "Asian ethnicity features"
+    skin_tone_range: [0.6, 0.8]
+    facial_features:
+      - "Monolid or double eyelid"
+      - "Straight black or dark brown hair"
+      - "Medium to light skin tone"
+    body_characteristics:
+      - "Generally slimmer build"
+      - "Lower body fat percentage"
+    
+  african:
+    name: "African"
+    description: "African ethnicity features"
+    skin_tone_range: [0.2, 0.5]
+    facial_features:
+      - "Curly or coily hair"
+      - "Fuller lips"
+      - "Dark skin tone"
+    body_characteristics:
+      - "Athletic build"
+      - "Higher muscle mass"
+    
+  caucasian:
+    name: "Caucasian"
+    description: "Caucasian ethnicity features"
+    skin_tone_range: [0.7, 0.95]
+    facial_features:
+      - "Varied eye colors"
+      - "Straight to wavy hair"
+      - "Light to medium skin tone"
+    body_characteristics:
+      - "Average build"
+      - "Varied body composition"
+    
+  hispanic:
+    name: "Hispanic"
+    description: "Hispanic ethnicity features"
+    skin_tone_range: [0.5, 0.75]
+    facial_features:
+      - "Dark hair"
+      - "Brown eyes"
+      - "Olive to tan skin tone"
+    body_characteristics:
+      - "Medium build"
+      - "Varied proportions"
+    
+  middle_eastern:
+    name: "Middle Eastern"
+    description: "Middle Eastern ethnicity features"
+    skin_tone_range: [0.55, 0.8]
+    facial_features:
+      - "Dark hair"
+      - "Dark eyes"
+      - "Olive skin tone"
+    body_characteristics:
+      - "Medium to stocky build"
+      - "Varied body composition"
