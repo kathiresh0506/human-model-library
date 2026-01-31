@@ -6,7 +6,7 @@ import os
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import yaml
 
 from .makehuman_generator import MakeHumanGenerator
