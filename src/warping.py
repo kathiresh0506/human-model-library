@@ -165,16 +165,25 @@ class ImageWarper:
     def extract_clothing_mask(clothing_image: np.ndarray,
                             threshold: int = 240) -> np.ndarray:
         """
-        Extract clothing from background (assumes white/light background).
+        Extract clothing from background supporting both RGB and RGBA.
         
         Args:
-            clothing_image: Input clothing image (RGB)
+            clothing_image: Input clothing image (RGB or RGBA)
             threshold: Threshold for background detection
             
         Returns:
             Binary mask (1 channel, 0-255)
         """
         try:
+            # Check if image has alpha channel
+            if clothing_image.shape[2] == 4:
+                # Use alpha channel as mask
+                alpha = clothing_image[:, :, 3]
+                # Threshold alpha to create binary mask
+                _, mask = cv2.threshold(alpha, 10, 255, cv2.THRESH_BINARY)
+                return mask
+            
+            # For RGB images, detect by brightness (assume white background)
             # Convert to grayscale
             gray = cv2.cvtColor(clothing_image, cv2.COLOR_RGB2GRAY)
             
