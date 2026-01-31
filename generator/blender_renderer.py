@@ -2,8 +2,11 @@
 Blender renderer script.
 Renders high-quality images from 3D human models using Blender.
 
-Note: This script requires Blender to be installed and accessible.
-Can be run in headless mode via Blender's Python API.
+Features:
+- Professional 3-point lighting setup
+- Multiple camera angles (front, side, back)
+- High-quality rendering with anti-aliasing
+- Transparent or solid background options
 """
 import os
 import subprocess
@@ -16,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class BlenderRenderer:
     """
-    Renders 3D models using Blender.
+    Renders 3D models using Blender with professional lighting and camera setup.
     """
     
     def __init__(self, blender_path: Optional[str] = None):
@@ -27,6 +30,7 @@ class BlenderRenderer:
             blender_path: Path to Blender executable
         """
         self.blender_path = blender_path or self._find_blender()
+        self.has_blender = self.blender_path is not None
         
     def _find_blender(self) -> Optional[str]:
         """
@@ -66,21 +70,24 @@ class BlenderRenderer:
                     model_path: str,
                     output_path: str,
                     view: str = 'front',
-                    resolution: Tuple[int, int] = (512, 512)) -> bool:
+                    resolution: Tuple[int, int] = (1024, 2048),
+                    transparent_bg: bool = True) -> bool:
         """
-        Render a 3D model to an image.
+        Render a 3D model to an image with professional lighting.
         
         Args:
             model_path: Path to the 3D model file
             output_path: Path to save the rendered image
             view: View angle ('front', 'side', 'back')
             resolution: Output resolution (width, height)
+            transparent_bg: Use transparent background
             
         Returns:
             True if successful, False otherwise
         """
-        if not self.blender_path:
-            logger.error("Blender not available")
+        if not self.has_blender:
+            logger.error("Blender not available - cannot render 3D models")
+            logger.info("Install Blender from: https://www.blender.org/download/")
             return False
         
         try:
@@ -88,7 +95,7 @@ class BlenderRenderer:
             
             # Create Blender Python script
             script = self._create_render_script(
-                model_path, output_path, view, resolution
+                model_path, output_path, view, resolution, transparent_bg
             )
             
             # Save script to temporary file
@@ -122,26 +129,35 @@ class BlenderRenderer:
                             model_path: str,
                             output_path: str,
                             view: str,
-                            resolution: Tuple[int, int]) -> str:
+                            resolution: Tuple[int, int],
+                            transparent_bg: bool = True) -> str:
         """
-        Create Blender Python script for rendering.
+        Create Blender Python script for rendering with professional lighting.
         
         Args:
             model_path: Path to 3D model
             output_path: Output image path
             view: View angle
             resolution: Resolution tuple
+            transparent_bg: Use transparent background
             
         Returns:
             Blender Python script as string
         """
         camera_positions = {
-            'front': (0, -5, 1),
-            'side': (5, 0, 1),
-            'back': (0, 5, 1),
+            'front': (0, -5, 1.5),
+            'side': (5, 0, 1.5),
+            'back': (0, 5, 1.5),
         }
         
-        cam_pos = camera_positions.get(view, (0, -5, 1))
+        camera_rotations = {
+            'front': (90, 0, 0),
+            'side': (90, 0, 90),
+            'back': (90, 0, 180),
+        }
+        
+        cam_pos = camera_positions.get(view, (0, -5, 1.5))
+        cam_rot = camera_rotations.get(view, (90, 0, 0))
         
         script = f"""
 import bpy
@@ -151,55 +167,94 @@ import math
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete()
 
-# Import model (adjust based on file format)
-# This is a placeholder - actual import depends on model format
+# Import model (try multiple formats)
+model_imported = False
 try:
-    # Try MakeHuman format
+    # Try MakeHuman MHX2 format
     bpy.ops.import_scene.makehuman_mhx2(filepath='{model_path}')
+    model_imported = True
 except:
-    # Try other formats
     try:
+        # Try FBX format
         bpy.ops.import_scene.fbx(filepath='{model_path}')
+        model_imported = True
     except:
-        print("Could not import model")
+        try:
+            # Try Collada/DAE format
+            bpy.ops.wm.collada_import(filepath='{model_path}')
+            model_imported = True
+        except:
+            print("ERROR: Could not import model - unsupported format")
 
-# Add camera
-bpy.ops.object.camera_add(location={cam_pos})
-camera = bpy.context.active_object
-camera.rotation_euler = (math.radians(90), 0, math.radians(90) if '{view}' == 'side' else 0)
-
-# Set camera as active
-bpy.context.scene.camera = camera
-
-# Add lighting
-bpy.ops.object.light_add(type='SUN', location=(5, 5, 10))
-sun = bpy.context.active_object
-sun.data.energy = 1.5
-
-bpy.ops.object.light_add(type='AREA', location=(-5, -5, 5))
-fill_light = bpy.context.active_object
-fill_light.data.energy = 0.5
-
-# Setup render settings
-scene = bpy.context.scene
-scene.render.resolution_x = {resolution[0]}
-scene.render.resolution_y = {resolution[1]}
-scene.render.resolution_percentage = 100
-scene.render.image_settings.file_format = 'PNG'
-scene.render.filepath = '{output_path}'
-
-# Set background to white
-bpy.context.scene.render.film_transparent = False
-world = bpy.data.worlds.new("World")
-bpy.context.scene.world = world
-world.use_nodes = True
-bg = world.node_tree.nodes['Background']
-bg.inputs[0].default_value = (1, 1, 1, 1)  # White background
-
-# Render
-bpy.ops.render.render(write_still=True)
-
-print("Render complete: {output_path}")
+if model_imported:
+    # Setup camera
+    bpy.ops.object.camera_add(location={cam_pos})
+    camera = bpy.context.active_object
+    camera.rotation_euler = (math.radians({cam_rot[0]}), 
+                            math.radians({cam_rot[1]}), 
+                            math.radians({cam_rot[2]}))
+    bpy.context.scene.camera = camera
+    
+    # Professional 3-point lighting setup
+    
+    # Key light (main light) - front, slightly to the side
+    bpy.ops.object.light_add(type='AREA', location=(2, -3, 3))
+    key_light = bpy.context.active_object
+    key_light.data.energy = 200
+    key_light.data.size = 2
+    key_light.rotation_euler = (math.radians(60), 0, math.radians(-30))
+    
+    # Fill light (softer, opposite side) - reduces harsh shadows
+    bpy.ops.object.light_add(type='AREA', location=(-2, -2, 2))
+    fill_light = bpy.context.active_object
+    fill_light.data.energy = 80
+    fill_light.data.size = 2
+    fill_light.rotation_euler = (math.radians(45), 0, math.radians(30))
+    
+    # Rim/back light - creates depth and separation from background
+    bpy.ops.object.light_add(type='AREA', location=(0, 2, 2))
+    rim_light = bpy.context.active_object
+    rim_light.data.energy = 100
+    rim_light.data.size = 1.5
+    rim_light.rotation_euler = (math.radians(120), 0, 0)
+    
+    # Ambient light for overall illumination
+    bpy.ops.object.light_add(type='SUN', location=(0, 0, 10))
+    ambient = bpy.context.active_object
+    ambient.data.energy = 0.3
+    
+    # Setup render settings
+    scene = bpy.context.scene
+    scene.render.resolution_x = {resolution[0]}
+    scene.render.resolution_y = {resolution[1]}
+    scene.render.resolution_percentage = 100
+    scene.render.image_settings.file_format = 'PNG'
+    scene.render.filepath = '{output_path}'
+    
+    # Enable transparent background if requested
+    scene.render.film_transparent = {str(transparent_bg)}
+    
+    if not {str(transparent_bg)}:
+        # Use white/gray gradient background
+        world = bpy.data.worlds.new("World")
+        bpy.context.scene.world = world
+        world.use_nodes = True
+        bg = world.node_tree.nodes['Background']
+        bg.inputs[0].default_value = (0.95, 0.95, 0.95, 1)  # Light gray
+    
+    # Enable high quality rendering
+    scene.render.engine = 'CYCLES'  # Use Cycles for better quality
+    scene.cycles.samples = 128  # Good quality/speed balance
+    scene.cycles.use_denoising = True
+    
+    # Anti-aliasing
+    scene.render.filter_size = 1.5
+    
+    # Render
+    bpy.ops.render.render(write_still=True)
+    print(f"Render complete: {output_path}")
+else:
+    print("ERROR: Model import failed")
 """
         return script
     
@@ -207,7 +262,8 @@ print("Render complete: {output_path}")
                             model_path: str,
                             output_dir: str,
                             views: Optional[List[str]] = None,
-                            resolution: Tuple[int, int] = (512, 512)) -> bool:
+                            resolution: Tuple[int, int] = (1024, 2048),
+                            transparent_bg: bool = True) -> bool:
         """
         Render multiple views of a model.
         
@@ -215,7 +271,8 @@ print("Render complete: {output_path}")
             model_path: Path to 3D model
             output_dir: Directory to save rendered images
             views: List of views to render (default: front, side, back)
-            resolution: Output resolution
+            resolution: Output resolution (portrait: 1024x2048)
+            transparent_bg: Use transparent background
             
         Returns:
             True if all renders successful, False otherwise
@@ -230,7 +287,7 @@ print("Render complete: {output_path}")
         for view in views:
             output_path = os.path.join(output_dir, f"{view}.png")
             
-            if not self.render_model(model_path, output_path, view, resolution):
+            if not self.render_model(model_path, output_path, view, resolution, transparent_bg):
                 logger.error(f"Failed to render {view} view")
                 success = False
         

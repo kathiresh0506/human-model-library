@@ -124,16 +124,16 @@ class ClothingFitter:
                      clothing_region: List[Tuple[int, int]],
                      clothing_type: str) -> Optional[np.ndarray]:
         """
-        Warp clothing image to fit body shape.
+        Warp clothing image to fit body shape with proper alpha handling.
         
         Args:
-            clothing_image: Clothing image
+            clothing_image: Clothing image (RGB or RGBA)
             body_keypoints: Body keypoints dictionary
             clothing_region: Region where clothing should be placed
             clothing_type: Type of clothing
             
         Returns:
-            Warped clothing image, or None if warping fails
+            Warped clothing image with alpha channel, or None if warping fails
         """
         try:
             # Get dimensions of clothing region
@@ -144,21 +144,23 @@ class ClothingFitter:
             region_width = x_max - x_min
             region_height = y_max - y_min
             
-            # Extract clothing mask (assuming white background)
-            logger.info("Extracting clothing mask...")
-            clothing_mask = self.image_warper.extract_clothing_mask(clothing_image)
+            # Convert to RGBA if needed
+            if clothing_image.shape[2] == 3:
+                logger.info("Converting RGB clothing to RGBA...")
+                # Extract mask first
+                clothing_mask = self.image_warper.extract_clothing_mask(clothing_image)
+                # Add alpha channel
+                clothing_rgba = np.dstack([clothing_image, clothing_mask])
+            else:
+                clothing_rgba = clothing_image
             
             # Resize clothing to approximately fit the region
             logger.info("Resizing clothing...")
             resized_clothing = self.image_warper.resize_to_fit(
-                clothing_image, region_width, region_height, maintain_aspect=True
-            )
-            resized_mask = self.image_warper.resize_to_fit(
-                clothing_mask, region_width, region_height, maintain_aspect=True
+                clothing_rgba, region_width, region_height, maintain_aspect=True
             )
             
-            # Create target image same size as model
-            # Get actual image dimensions from keypoints
+            # Create target canvas with alpha channel
             max_y = max([kp[1] for kp in body_keypoints.values()])
             max_x = max([kp[0] for kp in body_keypoints.values()])
             
@@ -166,8 +168,8 @@ class ClothingFitter:
             canvas_height = max_y + 100
             canvas_width = max_x + 100
             
-            # Create a canvas to place the clothing
-            warped_canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
+            # Create RGBA canvas
+            warped_canvas = np.zeros((canvas_height, canvas_width, 4), dtype=np.uint8)
             
             # Calculate position to place resized clothing
             clothing_h, clothing_w = resized_clothing.shape[:2]
@@ -187,10 +189,10 @@ class ClothingFitter:
             if actual_h < clothing_h or actual_w < clothing_w:
                 resized_clothing = resized_clothing[:actual_h, :actual_w]
             
-            # Place clothing on canvas
+            # Place clothing on canvas with alpha blending
             warped_canvas[start_y:end_y, start_x:end_x] = resized_clothing
             
-            logger.info("Clothing warped successfully")
+            logger.info("Clothing warped successfully with alpha channel")
             return warped_canvas
             
         except Exception as e:
@@ -201,40 +203,63 @@ class ClothingFitter:
                     model_image: np.ndarray,
                     warped_clothing: np.ndarray) -> np.ndarray:
         """
-        Blend warped clothing onto model image.
+        Blend warped clothing onto model image with proper alpha blending.
         
         Args:
-            model_image: Base model image
-            warped_clothing: Warped clothing image
+            model_image: Base model image (RGB or RGBA)
+            warped_clothing: Warped clothing image with alpha channel (RGBA)
             
         Returns:
             Blended image
         """
         try:
+            # Ensure model image is RGBA
+            if model_image.shape[2] == 3:
+                model_rgba = np.dstack([model_image, np.ones((model_image.shape[0], model_image.shape[1], 1), dtype=np.uint8) * 255])
+            else:
+                model_rgba = model_image.copy()
+            
             # Ensure both images have the same dimensions
-            if warped_clothing.shape[:2] != model_image.shape[:2]:
+            if warped_clothing.shape[:2] != model_rgba.shape[:2]:
                 import cv2
                 warped_clothing = cv2.resize(
                     warped_clothing,
-                    (model_image.shape[1], model_image.shape[0])
+                    (model_rgba.shape[1], model_rgba.shape[0])
                 )
             
-            # Create mask from warped clothing (non-zero pixels)
-            mask = np.any(warped_clothing != 0, axis=2).astype(np.uint8) * 255
+            # Extract alpha channel from clothing
+            if warped_clothing.shape[2] == 4:
+                clothing_rgb = warped_clothing[:, :, :3]
+                clothing_alpha = warped_clothing[:, :, 3:4].astype(float) / 255.0
+            else:
+                # No alpha channel, create mask from non-zero pixels
+                clothing_rgb = warped_clothing
+                mask = np.any(warped_clothing != 0, axis=2).astype(np.uint8) * 255
+                clothing_alpha = mask[:, :, np.newaxis].astype(float) / 255.0
             
-            # Feather mask edges for smooth blending
-            mask = self.blending_utility.feather_edges(mask, feather_amount=10)
+            # Feather edges for smooth blending
+            mask_for_feather = (clothing_alpha[:, :, 0] * 255).astype(np.uint8)
+            feathered_mask = self.blending_utility.feather_edges(mask_for_feather, feather_amount=10)
+            clothing_alpha = feathered_mask[:, :, np.newaxis].astype(float) / 255.0
             
-            # Alpha blend
-            blended = self.blending_utility.alpha_blend(
-                model_image, warped_clothing, mask, alpha=0.95
-            )
+            # Alpha blend: result = clothing * alpha + model * (1 - alpha)
+            model_rgb = model_rgba[:, :, :3]
+            blended_rgb = (clothing_rgb * clothing_alpha + model_rgb * (1 - clothing_alpha)).astype(np.uint8)
             
-            logger.info("Blending completed successfully")
-            return blended
+            # Combine with model alpha if it exists
+            if model_rgba.shape[2] == 4:
+                result = np.dstack([blended_rgb, model_rgba[:, :, 3]])
+            else:
+                result = blended_rgb
+            
+            logger.info("Blending completed successfully with alpha channel")
+            return result
             
         except Exception as e:
             logger.error(f"Error blending images: {e}")
+            # Return RGB version of model as fallback
+            if model_image.shape[2] == 4:
+                return model_image[:, :, :3]
             return model_image
     
     def process_full_tryon(self,

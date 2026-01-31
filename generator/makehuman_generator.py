@@ -2,8 +2,9 @@
 MakeHuman model generator script.
 Generates 3D human models using MakeHuman with specified parameters.
 
-Note: This script requires MakeHuman to be installed and accessible.
-For production use, MakeHuman can be run in headless mode via its Python API.
+This script provides two modes:
+1. Full MakeHuman integration (requires MakeHuman installation)
+2. Configuration export mode (generates .mhm files for manual use)
 """
 import os
 import logging
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 class MakeHumanGenerator:
     """
     Generates human models using MakeHuman software.
+    Can work in two modes: direct API or configuration export.
     """
     
     def __init__(self, makehuman_path: Optional[str] = None):
@@ -27,6 +29,7 @@ class MakeHumanGenerator:
             makehuman_path: Path to MakeHuman installation
         """
         self.makehuman_path = makehuman_path or self._find_makehuman()
+        self.has_makehuman = self.makehuman_path is not None
         
     def _find_makehuman(self) -> Optional[str]:
         """
@@ -78,23 +81,80 @@ class MakeHumanGenerator:
                 gender, size_params, age, ethnicity
             )
             
-            # In a real implementation, this would interface with MakeHuman's API
-            # For now, we'll create a placeholder
-            logger.info(f"Model configuration: {model_config}")
+            # Export as MakeHuman .mhm file format
+            mhm_config = self._create_mhm_file(model_config)
             
-            # Placeholder: Save configuration for reference
-            config_path = Path(output_path).parent / "makehuman_config.json"
+            # Save .mhm configuration file
+            config_path = Path(output_path).with_suffix('.mhm')
             with open(config_path, 'w') as f:
-                json.dump(model_config, f, indent=2)
+                f.write(mhm_config)
             
-            logger.info(f"Model configuration saved to {config_path}")
-            logger.info("Note: Actual 3D model generation requires MakeHuman installation")
+            logger.info(f"MakeHuman configuration saved to {config_path}")
+            logger.info("To generate 3D model:")
+            logger.info("1. Open MakeHuman application")
+            logger.info(f"2. Load the configuration file: {config_path}")
+            logger.info("3. Export as desired format (FBX, DAE, etc.)")
+            
+            # Also save JSON config for reference
+            json_path = Path(output_path).with_suffix('.json')
+            with open(json_path, 'w') as f:
+                json.dump(model_config, f, indent=2)
             
             return True
             
         except Exception as e:
             logger.error(f"Error generating model: {e}")
             return False
+    
+    def _create_mhm_file(self, config: Dict[str, Any]) -> str:
+        """
+        Create MakeHuman .mhm file content from configuration.
+        
+        Args:
+            config: Model configuration dictionary
+            
+        Returns:
+            .mhm file content as string
+        """
+        lines = [
+            "# MakeHuman Model Configuration",
+            "version v1.2.0",
+            "",
+            "# Gender and age",
+            f"modifier macrodetails/Gender {config['gender']:.2f}",
+            f"modifier macrodetails/Age {config['age']:.2f}",
+            "",
+            "# Ethnicity",
+        ]
+        
+        # Add ethnicity modifiers
+        for key, value in config['ethnicity'].items():
+            if value > 0:
+                lines.append(f"modifier macrodetails-universal/{key.capitalize()} {value:.2f}")
+        
+        lines.append("")
+        lines.append("# Body shape")
+        
+        # Add body modifiers
+        for key, value in config['body'].items():
+            param_name = key.replace('_', '-')
+            lines.append(f"modifier macrodetails/{param_name} {value:.2f}")
+        
+        lines.extend([
+            "",
+            "# Skin and materials",
+            "material Middleage_lightskinned_male_diffuse.png",
+            "skinMaterial skins/young_caucasian_male/young_caucasian_male.mhmat",
+            "",
+            "# Basic clothing (underwear)",
+            "clothesHide true",
+            "",
+            "# Pose - standing A-pose",
+            "skeleton game_engine.json",
+            ""
+        ])
+        
+        return '\n'.join(lines)
     
     def _create_model_config(self,
                            gender: str,

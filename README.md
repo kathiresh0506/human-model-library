@@ -380,10 +380,59 @@ curl -X POST "http://localhost:8000/api/tryon" \
 
 ## 🔨 Model Generation
 
+### Realistic Model Generation
+
+This project supports generating realistic human models with proper proportions, facial features, and shading:
+
+#### Option 1: Enhanced 2D Generator (No Installation Required)
+
+Generate realistic 2D models with:
+- Facial features (eyes, nose, mouth)
+- Hair styling appropriate to age and gender
+- 3D shading and highlights for depth
+- Anatomically accurate proportions
+- Transparent RGBA background
+
+```bash
+# Generate sample models
+python scripts/create_sample_models.py
+
+# The generator creates models with:
+# - Skin tones based on ethnicity
+# - Age-appropriate features
+# - Gender-specific body shapes
+# - Proper height-based scaling
+```
+
+#### Option 2: MakeHuman + Blender (Professional Quality)
+
+For photorealistic 3D models, install MakeHuman and Blender:
+
+```bash
+# Check if tools are installed
+python scripts/create_realistic_models.py --check
+
+# Generate a model
+python scripts/create_realistic_models.py \
+  --gender male \
+  --size M \
+  --age young \
+  --ethnicity asian \
+  --output models/male/M/young/asian
+```
+
+See [MakeHuman Setup Guide](docs/MAKEHUMAN_SETUP.md) for installation instructions.
+
 ### Prerequisites for Model Generation
 
-- **MakeHuman**: For generating 3D human models
-- **Blender**: For rendering high-quality images
+**Basic (Enhanced 2D Generator):**
+- Python 3.8+
+- Pillow (PIL)
+- NumPy
+
+**Advanced (3D Pipeline - Optional):**
+- MakeHuman Community (http://www.makehumancommunity.org/)
+- Blender 2.8+ (https://www.blender.org/download/)
 
 ### Generate Single Model
 
