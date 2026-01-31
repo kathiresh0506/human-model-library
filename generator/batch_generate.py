@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Dict, List, Any
 import yaml
 
-from makehuman_generator import MakeHumanGenerator
-from blender_renderer import BlenderRenderer
+from .makehuman_generator import MakeHumanGenerator
+from .blender_renderer import BlenderRenderer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -58,12 +58,12 @@ class BatchGenerator:
             logger.error(f"Error loading {filename}: {e}")
             return {}
     
-    def generate_all_models(self, limit_per_category: Optional[int] = None) -> Dict[str, bool]:
+    def generate_all_models(self, max_models: Optional[int] = None) -> Dict[str, bool]:
         """
         Generate all model combinations.
         
         Args:
-            limit_per_category: Optional limit on models per category (for testing)
+            max_models: Optional limit on total number of models to generate (for testing)
             
         Returns:
             Dictionary of generation results
@@ -84,8 +84,8 @@ class BatchGenerator:
             for size in sizes:
                 for age_group in age_groups:
                     for ethnicity in ethnicities:
-                        if limit_per_category and total_models >= limit_per_category:
-                            logger.info(f"Reached limit of {limit_per_category} models")
+                        if max_models and total_models >= max_models:
+                            logger.info(f"Reached limit of {max_models} models")
                             return results
                         
                         total_models += 1

@@ -158,13 +158,16 @@ class ClothingFitter:
             )
             
             # Create target image same size as model
-            height, width = body_keypoints.get('nose', (width, height))
-            # Get actual image dimensions from a reference point
+            # Get actual image dimensions from keypoints
             max_y = max([kp[1] for kp in body_keypoints.values()])
             max_x = max([kp[0] for kp in body_keypoints.values()])
             
+            # Add padding and create canvas
+            canvas_height = max_y + 100
+            canvas_width = max_x + 100
+            
             # Create a canvas to place the clothing
-            warped_canvas = np.zeros((max_y + 100, max_x + 100, 3), dtype=np.uint8)
+            warped_canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
             
             # Calculate position to place resized clothing
             clothing_h, clothing_w = resized_clothing.shape[:2]

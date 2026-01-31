@@ -2,6 +2,7 @@
 FastAPI application setup for Human Model Library API.
 """
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -15,13 +16,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for startup and shutdown events.
+    """
+    # Startup
+    logger.info("Starting Human Model Library API...")
+    logger.info("API documentation available at /docs")
+    yield
+    # Shutdown
+    logger.info("Shutting down Human Model Library API...")
+
+
 # Create FastAPI application
 app = FastAPI(
     title="Human Model Library API",
     description="Virtual try-on API for fitting clothing on human models",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Configure CORS
@@ -32,19 +48,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize services on startup."""
-    logger.info("Starting Human Model Library API...")
-    logger.info("API documentation available at /docs")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown."""
-    logger.info("Shutting down Human Model Library API...")
 
 
 @app.get("/", response_model=HealthResponse)
