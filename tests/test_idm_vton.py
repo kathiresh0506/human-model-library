@@ -31,6 +31,21 @@ def test_client_initialization():
     assert custom_client.space_id == "custom/space"
 
 
+def test_seed_parameter_default_value():
+    """Test that the default seed parameter is within valid range (<= 40)."""
+    import inspect
+    from idm_vton import IDMVTONClient
+    
+    # Get the default value of seed parameter from try_on method signature
+    sig = inspect.signature(IDMVTONClient.try_on)
+    seed_param = sig.parameters['seed']
+    seed_default = seed_param.default
+    
+    # Verify seed default is within valid range (API max is 40)
+    assert seed_default <= 40, f"Default seed value {seed_default} exceeds maximum allowed value of 40"
+    assert seed_default >= 0, f"Default seed value {seed_default} should be non-negative"
+
+
 def test_model_selector_real_with_real_humans_dir():
     """Test that RealModelSelector works with real_humans directory."""
     from model_selector_real import RealModelSelector
@@ -74,6 +89,12 @@ if __name__ == '__main__':
         print("✓ Client initialization test passed")
     except Exception as e:
         print(f"✗ Client initialization test failed: {e}")
+    
+    try:
+        test_seed_parameter_default_value()
+        print("✓ Seed parameter default value test passed")
+    except Exception as e:
+        print(f"✗ Seed parameter default value test failed: {e}")
     
     try:
         test_model_selector_real_with_real_humans_dir()

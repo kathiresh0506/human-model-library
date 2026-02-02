@@ -49,7 +49,7 @@ class IDMVTONClient:
         clothing_type: str = "upper_body",  # upper_body, lower_body, dresses
         num_steps: int = 30,
         guidance_scale: float = 2.0,
-        seed: int = 42
+        seed: int = 0
     ) -> str:
         """
         Perform virtual try-on using IDM-VTON.
@@ -60,7 +60,7 @@ class IDMVTONClient:
             clothing_type: Type of clothing (upper_body, lower_body, dresses)
             num_steps: Number of diffusion steps (default: 30)
             guidance_scale: Guidance scale for generation (default: 2.0)
-            seed: Random seed for reproducibility (default: 42)
+            seed: Random seed for reproducibility (default: 0, must be <= 40)
             
         Returns:
             Path to result image
