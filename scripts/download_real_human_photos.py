@@ -29,6 +29,7 @@ import sys
 import json
 import argparse
 import logging
+import time
 import urllib.request
 from pathlib import Path
 from typing import Dict, List
@@ -38,6 +39,10 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+
+# Constants
+MIN_PHOTO_SIZE_BYTES = 10240  # 10KB - minimum size to ensure real photo quality
 
 
 # REAL PHOTO URLS from Unsplash
@@ -94,7 +99,6 @@ class RealHumanPhotoDownloader:
         logger.info("Deleting Placeholder and PNG Silhouette Files")
         logger.info("=" * 60)
         
-        import os
         total_deleted = 0
         
         for gender in ['male', 'female']:
@@ -320,9 +324,9 @@ class RealHumanPhotoDownloader:
                     output_path = self.base_dir / gender / size / "front_001.jpg"
                     
                     if output_path.exists():
-                        # Check if existing file is valid (> 10KB)
+                        # Check if existing file is valid (> MIN_PHOTO_SIZE_BYTES)
                         file_size = output_path.stat().st_size
-                        if file_size > 10240:  # 10KB
+                        if file_size > MIN_PHOTO_SIZE_BYTES:
                             logger.info(f"  ✓ Already exists and valid: {output_path.name} ({file_size} bytes)")
                             total_downloaded += 1
                             continue
@@ -342,8 +346,8 @@ class RealHumanPhotoDownloader:
                     with urllib.request.urlopen(req, timeout=30) as response:
                         img_data = response.read()
                         
-                        # Verify this is a real photo (file size > 10KB)
-                        if len(img_data) < 10240:  # 10KB
+                        # Verify this is a real photo (file size > MIN_PHOTO_SIZE_BYTES)
+                        if len(img_data) < MIN_PHOTO_SIZE_BYTES:
                             logger.error(f"  ✗ Downloaded file too small ({len(img_data)} bytes), likely not a real photo")
                             continue
                     
@@ -356,7 +360,6 @@ class RealHumanPhotoDownloader:
                     total_downloaded += 1
                     
                     # Small delay to avoid rate limiting
-                    import time
                     time.sleep(1)
                     
                 except urllib.error.URLError as e:
