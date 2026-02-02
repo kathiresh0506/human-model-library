@@ -74,6 +74,9 @@ class IDMVTONClient:
         logger.info(f"  Type: {clothing_type}")
         
         try:
+            # IDM-VTON API parameters:
+            # - auto-mask: Automatically detect and mask the person's clothing area
+            # - auto-crop: Automatically crop and align the garment for better fitting
             result = self.client.predict(
                 dict(
                     background=handle_file(person_image),
@@ -85,8 +88,8 @@ class IDMVTONClient:
                 num_steps,
                 guidance_scale,
                 seed,
-                True,  # auto-mask
-                True,  # auto-crop
+                True,  # auto-mask: enable automatic person masking
+                True,  # auto-crop: enable automatic garment cropping
                 api_name="/tryon"
             )
             

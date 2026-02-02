@@ -245,10 +245,8 @@ Add 3-5 photos for best results.
                     counts[gender][size] = 0
                     continue
                 
-                # Count image files
-                photo_count = 0
-                for ext in ['*.jpg', '*.jpeg', '*.png']:
-                    photo_count += len(list(size_dir.glob(ext)))
+                # Count image files efficiently
+                photo_count = sum(1 for _ in size_dir.glob('*.[jp][pn][g]'))
                 
                 counts[gender][size] = photo_count
         
