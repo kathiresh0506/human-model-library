@@ -71,9 +71,19 @@ def create_comparison_image(person_image: np.ndarray,
     def add_label(img, text):
         pil_img = Image.fromarray(img)
         draw = ImageDraw.Draw(pil_img)
+        font = None
         try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
-        except:
+            # Try to load a system font (cross-platform)
+            import platform
+            system = platform.system()
+            if system == 'Windows':
+                font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 24)
+            elif system == 'Darwin':  # macOS
+                font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 24)
+            else:  # Linux
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
+        except Exception:
+            # Fallback to default font
             font = ImageFont.load_default()
         
         bbox = draw.textbbox((0, 0), text, font=font)

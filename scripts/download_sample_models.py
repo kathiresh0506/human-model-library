@@ -100,9 +100,19 @@ class ModelPhotoGenerator:
         draw.line([right_hip, (width // 2 + 40, int(height * 0.95))], fill=(100, 100, 100), width=20)
         
         # Add text label
+        font = None
         try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
-        except:
+            # Try to load a system font (cross-platform)
+            import platform
+            system = platform.system()
+            if system == 'Windows':
+                font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 20)
+            elif system == 'Darwin':  # macOS
+                font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 20)
+            else:  # Linux
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
+        except Exception:
+            # Fallback to default font
             font = ImageFont.load_default()
         
         text = f"{gender.upper()} - {size} - {ethnicity}"
@@ -112,9 +122,17 @@ class ModelPhotoGenerator:
         draw.text((text_x, height - 40), text, fill=(0, 0, 0), font=font)
         
         # Add "PLACEHOLDER" watermark
+        watermark_font = None
         try:
-            watermark_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
-        except:
+            import platform
+            system = platform.system()
+            if system == 'Windows':
+                watermark_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 30)
+            elif system == 'Darwin':  # macOS
+                watermark_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 30)
+            else:  # Linux
+                watermark_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
+        except Exception:
             watermark_font = font
         
         draw.text((width // 2 - 100, height // 2), "PLACEHOLDER", fill=(150, 150, 150), font=watermark_font)
