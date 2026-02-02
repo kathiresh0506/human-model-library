@@ -49,7 +49,7 @@ class IDMVTONClient:
         clothing_type: str = "upper_body",  # upper_body, lower_body, dresses
         num_steps: int = 30,
         guidance_scale: float = 2.0,
-        seed: int = 42
+        seed: int = 30
     ) -> str:
         """
         Perform virtual try-on using IDM-VTON.
