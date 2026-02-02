@@ -1,0 +1,76 @@
+{
+  "version": "1.0",
+  "description": "Real human model photo library",
+  "sources": [
+    "VITON-HD test dataset",
+    "Unsplash API",
+    "Pexels API"
+  ],
+  "organization": {
+    "structure": "models/realistic/{gender}/{size}/",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "genders": [
+      "male",
+      "female"
+    ]
+  },
+  "requirements": {
+    "resolution": "\u2265512x768",
+    "format": "JPEG",
+    "background": "clean/white/gray preferred",
+    "pose": "front-facing, standing, arms slightly away"
+  },
+  "models": {
+    "male": {
+      "S": {
+        "count": 0,
+        "files": []
+      },
+      "M": {
+        "count": 1,
+        "files": [
+          "front_001.jpg"
+        ]
+      },
+      "L": {
+        "count": 1,
+        "files": [
+          "front_001.jpg"
+        ]
+      },
+      "XL": {
+        "count": 0,
+        "files": []
+      }
+    },
+    "female": {
+      "S": {
+        "count": 1,
+        "files": [
+          "front_001.jpg"
+        ]
+      },
+      "M": {
+        "count": 1,
+        "files": [
+          "front_001.jpg"
+        ]
+      },
+      "L": {
+        "count": 1,
+        "files": [
+          "front_001.jpg"
+        ]
+      },
+      "XL": {
+        "count": 0,
+        "files": []
+      }
+    }
+  }
+}
