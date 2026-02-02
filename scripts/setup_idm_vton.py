@@ -58,12 +58,15 @@ def main():
     
     if download_script.exists():
         logger.info("Running download_real_human_photos.py...")
+        logger.info("This will copy existing photos and fill missing categories...")
         try:
+            # Run with --skip-download to avoid potential network issues
+            # Users can run the script manually without --skip-download if they want to try downloading
             subprocess.run(
-                [sys.executable, str(download_script)],
+                [sys.executable, str(download_script), "--skip-download"],
                 check=True
             )
-            logger.info("✅ Directory structure created!")
+            logger.info("✅ Real human photos setup complete!")
         except subprocess.CalledProcessError as e:
             logger.warning(f"⚠ Script execution had issues: {e}")
             logger.info("Continuing with setup...")
