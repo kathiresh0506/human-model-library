@@ -110,7 +110,7 @@ Experience **Myntra-quality results** with IDM-VTON integration! This uses the l
 #### Quick Start
 
 ```bash
-# One-time setup (installs gradio_client and creates directory structure)
+# One-time setup (installs gradio_client, downloads photos, and creates directory structure)
 python scripts/setup_idm_vton.py
 
 # Run virtual try-on with auto-selected model
@@ -125,30 +125,43 @@ python scripts/demo_idm_vton.py --person your_model.jpg --clothing your_shirt.jp
 
 #### Features
 
-- ✅ **Real human photos** (not cartoons or generated models)
+- ✅ **Real human photos** automatically populated (13 photos covering all sizes)
 - ✅ **State-of-the-art IDM-VTON** model from Hugging Face
 - ✅ **Myntra-quality results** with realistic clothing fit
-- ✅ **Multiple sizes** (S, M, L, XL) for both male and female
+- ✅ **All sizes covered** (S, M, L, XL) for both male and female
 - ✅ **No GPU required** - runs on Hugging Face Spaces
-- ✅ **Simple API** - just provide person and clothing images
+- ✅ **Simple API** - just provide clothing image, model is auto-selected
+- ✅ **One-command setup** - photos downloaded automatically
 
-#### Adding Real Human Photos
+#### Real Human Photo Library
 
-The setup script creates a directory structure for real human photos:
+The setup script automatically populates the photo library:
 
 ```
 models/real_humans/
 ├── male/
-│   ├── S/  (add 3-5 photos here)
-│   ├── M/  (add 3-5 photos here)
-│   ├── L/  (add 3-5 photos here)
-│   └── XL/ (add 3-5 photos here)
+│   ├── S/  (1 photo - ready to use)
+│   ├── M/  (2 photos - ready to use)
+│   ├── L/  (3 photos - ready to use)
+│   └── XL/ (1 photo - ready to use)
 └── female/
-    ├── S/  (add 3-5 photos here)
-    ├── M/  (add 3-5 photos here)
-    ├── L/  (add 3-5 photos here)
-    └── XL/ (add 3-5 photos here)
+    ├── S/  (3 photos - ready to use)
+    ├── M/  (1 photo - ready to use)
+    ├── L/  (1 photo - ready to use)
+    └── XL/ (1 photo - ready to use)
 ```
+
+**Total: 13 photos covering all gender/size combinations!**
+
+**Photo Sources:**
+- Real photos from `models/realistic/` folder
+- Generated photos from `models/male/` and `models/female/` folders
+- Placeholders automatically created for missing sizes
+
+**To add more photos manually:**
+1. Navigate to appropriate gender/size directory in `models/real_humans/`
+2. Add photos following the naming convention: `model_01.jpg`, `model_02.jpg`, etc.
+3. Ensure photos meet the requirements below
 
 **Photo Requirements:**
 - Real human (not AI-generated or cartoon)
