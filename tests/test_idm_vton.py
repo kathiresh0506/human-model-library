@@ -35,12 +35,13 @@ def test_model_selector_real_with_real_humans_dir():
     """Test that RealModelSelector works with real_humans directory."""
     from model_selector_real import RealModelSelector
     
-    # Should work with both directories
+    # Test with realistic directory
     selector1 = RealModelSelector(base_dir='models/realistic')
-    assert selector1.base_dir.name in ['realistic', 'real_humans']
+    assert selector1.base_dir.name == 'realistic'
     
+    # Test with real_humans directory  
     selector2 = RealModelSelector(base_dir='models/real_humans')
-    assert selector2.base_dir.name in ['realistic', 'real_humans']
+    assert selector2.base_dir.name == 'real_humans'
 
 
 def test_model_selector_list_available():

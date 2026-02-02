@@ -273,8 +273,9 @@ class RealModelSelector:
             for size in ["S", "M", "L", "XL"]:
                 model_dir = self.base_dir / gender / size
                 if model_dir.exists():
-                    photos = list(model_dir.glob("*.jpg")) + list(model_dir.glob("*.png")) + list(model_dir.glob("*.jpeg"))
-                    available[gender][size] = len(photos)
+                    # Count files without creating intermediate lists
+                    count = sum(1 for _ in model_dir.glob('*.[jp][pn][g]'))
+                    available[gender][size] = count
                 else:
                     available[gender][size] = 0
         return available
