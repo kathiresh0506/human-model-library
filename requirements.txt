@@ -28,3 +28,10 @@ pytest-asyncio==0.23.3
 # torch==2.1.2
 # torchvision==0.16.2
 # tensorflow==2.15.0
+
+# VITON-HD dependencies (optional, for full VITON-HD functionality)
+# Uncomment for production-quality virtual try-on:
+# torch>=1.9.0
+# torchvision>=0.10.0
+# For human parsing and segmentation:
+# scipy>=1.7.0
