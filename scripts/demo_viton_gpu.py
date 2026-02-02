@@ -254,7 +254,7 @@ GPU Requirements:
     parser.add_argument('--batch-size', type=int, default=1,
                        help='Batch size for processing (for benchmarking)')
     parser.add_argument('--high-res', action='store_true',
-                       help='Enable high-resolution output (if available)')
+                       help='[EXPERIMENTAL] Enable high-resolution output (not yet implemented)')
     parser.add_argument('--comparison', action='store_true',
                        help='Create side-by-side comparison image')
     

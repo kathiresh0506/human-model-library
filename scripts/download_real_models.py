@@ -257,6 +257,16 @@ class RealModelDownloader:
         """
         Estimate size category from index (simple distribution).
         
+        NOTE: This is a placeholder distribution method that assigns sizes
+        based on photo position in the results. In production, this should
+        use actual body measurement estimation from the images or metadata.
+        
+        Current distribution:
+        - S (Small): First 25% of photos
+        - M (Medium): Next 35% of photos (25-60%)
+        - L (Large): Next 25% of photos (60-85%)
+        - XL (Extra Large): Last 15% of photos (85-100%)
+        
         Args:
             idx: Photo index
             total: Total photos

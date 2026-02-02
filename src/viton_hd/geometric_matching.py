@@ -121,6 +121,16 @@ class TPSGridGenerator(nn.Module):
         """
         Apply TPS transformation to grid.
         
+        NOTE: This is a simplified placeholder implementation using identity
+        transformation. Full TPS implementation requires:
+        1. Computing kernel matrix K and polynomial matrix P
+        2. Solving the TPS system using SVD: (K + λI)^-1
+        3. Computing warping coefficients
+        4. Applying transformation to target grid
+        
+        For production use, integrate a complete TPS solver or use pre-trained
+        geometric matching weights from VITON-HD.
+        
         Args:
             source_cp: Source control points [B, N, 2]
             target_cp: Target control points [B, N, 2]
@@ -139,8 +149,8 @@ class TPSGridGenerator(nn.Module):
         P = torch.cat([torch.ones(batch_size, num_cp, 1, device=source_cp.device),
                       source_cp], dim=2)  # [B, N, 3]
         
-        # Solve TPS system (simplified - in practice would use SVD)
-        # For now, use identity transformation as placeholder
+        # TODO: Solve TPS system (simplified - using identity as placeholder)
+        # In production, implement full TPS solver using SVD or load pre-trained weights
         transformed_grid = grid
         
         return transformed_grid

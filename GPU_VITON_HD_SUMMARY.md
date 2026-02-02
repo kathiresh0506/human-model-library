@@ -436,3 +436,19 @@ The system is ready for:
 - Production deployment
 
 All requirements from the problem statement have been fulfilled.
+
+## Known Limitations
+
+1. **TPS Transformation**: The geometric matching module uses a simplified TPS implementation. For production, integrate the complete TPS solver from VITON-HD or use pre-trained geometric matching weights.
+
+2. **Size Estimation**: Photo size classification uses index-based distribution as a placeholder. For production, implement computer vision-based body measurement estimation.
+
+3. **Pre-trained Weights**: The models require downloading ~420MB of pre-trained weights. Without these weights, the neural networks will produce random output.
+
+4. **Photo Quality**: The system works best with:
+   - Front-facing, standing poses
+   - Clean backgrounds
+   - High resolution (≥512x768)
+   - Arms slightly away from body
+
+5. **High-Resolution Mode**: The `--high-res` flag is marked as experimental and not yet fully implemented. Current output is 512x768 pixels.

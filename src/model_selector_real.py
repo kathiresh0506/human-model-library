@@ -282,11 +282,30 @@ class RealModelSelector:
         
         return str(selected)
     
+    # Standard chest/bust measurement ranges for sizing (in cm)
+    # Based on common US/EU sizing charts
+    SIZE_THRESHOLDS_MALE = {
+        'S': (0, 92),      # Small: <92cm chest
+        'M': (92, 102),    # Medium: 92-102cm chest
+        'L': (102, 112),   # Large: 102-112cm chest
+        'XL': (112, 999)   # Extra Large: >112cm chest
+    }
+    
+    SIZE_THRESHOLDS_FEMALE = {
+        'S': (0, 87),      # Small: <87cm bust
+        'M': (87, 94),     # Medium: 87-94cm bust
+        'L': (94, 102),    # Large: 94-102cm bust
+        'XL': (102, 999)   # Extra Large: >102cm bust
+    }
+    
     def find_best_match(self, target_height_cm: float, 
                        target_chest_cm: float,
                        gender: str) -> Optional[str]:
         """
         Find best matching model based on body measurements.
+        
+        Uses standard sizing chart thresholds to estimate appropriate size
+        based on chest/bust measurement.
         
         Args:
             target_height_cm: Target height in cm
@@ -296,29 +315,17 @@ class RealModelSelector:
         Returns:
             Path to best matching model
         """
-        # Simple size estimation based on chest measurement
-        # In production, would use more sophisticated estimation
-        
         gender = gender.lower()
         
-        if gender == 'male':
-            if target_chest_cm < 92:
-                size = 'S'
-            elif target_chest_cm < 102:
-                size = 'M'
-            elif target_chest_cm < 112:
-                size = 'L'
-            else:
-                size = 'XL'
-        else:  # female
-            if target_chest_cm < 87:
-                size = 'S'
-            elif target_chest_cm < 94:
-                size = 'M'
-            elif target_chest_cm < 102:
-                size = 'L'
-            else:
-                size = 'XL'
+        # Select appropriate size thresholds
+        thresholds = self.SIZE_THRESHOLDS_MALE if gender == 'male' else self.SIZE_THRESHOLDS_FEMALE
+        
+        # Find matching size based on chest measurement
+        size = 'M'  # Default
+        for size_name, (min_cm, max_cm) in thresholds.items():
+            if min_cm <= target_chest_cm < max_cm:
+                size = size_name
+                break
         
         logger.info(f"Estimated size: {size} (chest: {target_chest_cm}cm)")
         
