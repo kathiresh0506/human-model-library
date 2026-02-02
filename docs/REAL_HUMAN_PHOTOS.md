@@ -125,8 +125,18 @@ See the README.md file in each size directory for detailed requirements.
 
 ## Notes
 
-- The current front_001.jpg files are sourced from the `models/realistic/` directory
-- These files may be replaced with higher-quality photos from Unsplash when internet access is available
-- The download script will preserve existing valid photos (> 10KB) unless they are placeholders
+### Current Photo Sources
+- The current `front_001.jpg` files (20-33KB each) are valid photos sourced from the `models/realistic/` directory
+- These photos meet the minimum requirements (> 10KB, JPEG format, appropriate dimensions)
+- They serve as functional placeholders until higher-quality photos can be downloaded from Unsplash
+
+### Future Updates
+- When internet access is available, run `python scripts/download_real_human_photos.py` to download higher-quality photos from specific Unsplash URLs
+- The download script will replace existing files only if they are too small (< 10KB) or have "placeholder" in the name
+- Valid existing photos (> 10KB) are preserved unless explicitly deleted
+
+### Script Behavior
 - Placeholder files (those with "placeholder" in the name) are always deleted
 - PNG files are always deleted (they were silhouettes, not real photos)
+- The script validates all downloaded photos to ensure they are real images (> 10KB)
+- Files are saved as `front_001.jpg` in JPEG format for consistency

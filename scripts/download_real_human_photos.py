@@ -29,8 +29,8 @@ import sys
 import json
 import argparse
 import logging
-import time
 import urllib.request
+import time
 from pathlib import Path
 from typing import Dict, List
 
@@ -113,7 +113,7 @@ class RealHumanPhotoDownloader:
                     for file_path in size_dir.glob(pattern):
                         try:
                             logger.info(f"  ✗ Deleting: {gender}/{size}/{file_path.name}")
-                            os.remove(file_path)
+                            file_path.unlink()
                             total_deleted += 1
                         except Exception as e:
                             logger.error(f"  Failed to delete {file_path}: {e}")
@@ -124,6 +124,22 @@ class RealHumanPhotoDownloader:
             logger.info("\n✓ No placeholder/PNG files found to delete")
         
         return total_deleted
+    
+    def _is_valid_photo(self, file_path: Path) -> bool:
+        """
+        Validate if a file is a real photo based on size.
+        
+        Args:
+            file_path: Path to the image file
+            
+        Returns:
+            True if file size > MIN_PHOTO_SIZE_BYTES, False otherwise
+        """
+        if not file_path.exists():
+            return False
+        
+        file_size = file_path.stat().st_size
+        return file_size > MIN_PHOTO_SIZE_BYTES
     
     def copy_from_realistic_folder(self) -> bool:
         """
@@ -324,13 +340,14 @@ class RealHumanPhotoDownloader:
                     output_path = self.base_dir / gender / size / "front_001.jpg"
                     
                     if output_path.exists():
-                        # Check if existing file is valid (> MIN_PHOTO_SIZE_BYTES)
-                        file_size = output_path.stat().st_size
-                        if file_size > MIN_PHOTO_SIZE_BYTES:
+                        # Check if existing file is valid using helper method
+                        if self._is_valid_photo(output_path):
+                            file_size = output_path.stat().st_size
                             logger.info(f"  ✓ Already exists and valid: {output_path.name} ({file_size} bytes)")
                             total_downloaded += 1
                             continue
                         else:
+                            file_size = output_path.stat().st_size
                             logger.warning(f"  ⚠ Existing file is too small ({file_size} bytes), re-downloading...")
                     
                     logger.info(f"  Downloading from: {url}")
