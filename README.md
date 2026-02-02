@@ -125,7 +125,7 @@ python scripts/demo_idm_vton.py --person your_model.jpg --clothing your_shirt.jp
 
 #### Features
 
-- ✅ **Real human photos** automatically populated (13 photos covering all sizes)
+- ✅ **Real human photos** automatically populated (14 photos covering all sizes)
 - ✅ **State-of-the-art IDM-VTON** model from Hugging Face
 - ✅ **Myntra-quality results** with realistic clothing fit
 - ✅ **All sizes covered** (S, M, L, XL) for both male and female
@@ -151,7 +151,7 @@ models/real_humans/
     └── XL/ (1 photo - ready to use)
 ```
 
-**Total: 13 photos covering all gender/size combinations!**
+**Total: 14 photos covering all gender/size combinations!**
 
 **Photo Sources:**
 - Real photos from `models/realistic/` folder

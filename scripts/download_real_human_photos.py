@@ -229,8 +229,9 @@ class RealHumanPhotoDownloader:
         
         if total_created > 0:
             logger.info(f"\n✓ Created {total_created} placeholder photos")
-            logger.warning("\n⚠ Note: Placeholder photos are duplicates from other sizes.")
-            logger.info("For best results, replace with appropriate photos for each size.")
+            logger.warning("\n⚠ Note: Placeholder photos are duplicates from nearby sizes.")
+            logger.info("For best results, replace placeholders with photos of models matching each size.")
+            logger.info("Placeholder files are named 'placeholder_01.*' for easy identification.")
             return True
         else:
             logger.info("\nAll sizes already have photos!")
@@ -330,6 +331,19 @@ class RealHumanPhotoDownloader:
                         
                         with urllib.request.urlopen(req, timeout=30) as response:
                             img_data = response.read()
+                            
+                            # Detect image format from response headers
+                            content_type = response.headers.get('Content-Type', '')
+                            if 'png' in content_type.lower():
+                                ext = '.png'
+                            elif 'jpeg' in content_type.lower() or 'jpg' in content_type.lower():
+                                ext = '.jpg'
+                            else:
+                                # Default to jpg if unknown
+                                ext = '.jpg'
+                            
+                            # Update output path with correct extension
+                            output_path = output_path.with_suffix(ext)
                             
                         # Save the image
                         with open(output_path, 'wb') as f:
