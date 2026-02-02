@@ -41,3 +41,6 @@ scipy>=1.7.0
 
 # Optional: For downloading photos from APIs
 requests>=2.31.0
+
+# IDM-VTON integration (Hugging Face Spaces API)
+gradio_client>=0.10.0

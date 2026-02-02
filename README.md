@@ -4,6 +4,7 @@ A complete virtual try-on system for fitting clothing on pre-built human models,
 
 ## 🌟 Features
 
+- **IDM-VTON Integration**: State-of-the-art virtual try-on via Hugging Face Spaces API (Myntra-quality)
 - **Real Human Model Photos**: Download and organize actual human photos by gender and size
 - **GPU-Accelerated VITON-HD**: State-of-the-art virtual try-on with PyTorch and CUDA support
 - **Pre-built Human Model Library**: Organized by gender, size, age, and ethnicity
@@ -99,6 +100,71 @@ docker build -t human-model-library .
 # Run container
 docker run -p 8000:8000 human-model-library
 ```
+
+## 🚀 Myntra-Quality Virtual Try-On (IDM-VTON)
+
+### NEW: State-of-the-Art Virtual Try-On
+
+Experience **Myntra-quality results** with IDM-VTON integration! This uses the latest IDM-VTON model via Hugging Face Spaces API for professional-grade virtual try-on.
+
+#### Quick Start
+
+```bash
+# One-time setup (installs gradio_client and creates directory structure)
+python scripts/setup_idm_vton.py
+
+# Run virtual try-on with auto-selected model
+python scripts/demo_idm_vton.py --clothing samples/clothing/tshirt_blue.png
+
+# Use specific gender and size
+python scripts/demo_idm_vton.py --clothing your_shirt.jpg --gender male --size M
+
+# Use your own person image
+python scripts/demo_idm_vton.py --person your_model.jpg --clothing your_shirt.jpg
+```
+
+#### Features
+
+- ✅ **Real human photos** (not cartoons or generated models)
+- ✅ **State-of-the-art IDM-VTON** model from Hugging Face
+- ✅ **Myntra-quality results** with realistic clothing fit
+- ✅ **Multiple sizes** (S, M, L, XL) for both male and female
+- ✅ **No GPU required** - runs on Hugging Face Spaces
+- ✅ **Simple API** - just provide person and clothing images
+
+#### Adding Real Human Photos
+
+The setup script creates a directory structure for real human photos:
+
+```
+models/real_humans/
+├── male/
+│   ├── S/  (add 3-5 photos here)
+│   ├── M/  (add 3-5 photos here)
+│   ├── L/  (add 3-5 photos here)
+│   └── XL/ (add 3-5 photos here)
+└── female/
+    ├── S/  (add 3-5 photos here)
+    ├── M/  (add 3-5 photos here)
+    ├── L/  (add 3-5 photos here)
+    └── XL/ (add 3-5 photos here)
+```
+
+**Photo Requirements:**
+- Real human (not AI-generated or cartoon)
+- Front-facing, standing pose
+- Arms slightly away from body
+- Clean background (white/gray preferred)
+- High resolution (512x768 minimum)
+- Format: JPG or PNG
+
+#### Expected Results
+
+After running the demo:
+1. High-quality virtual try-on result saved to `output/idm_vton_result.png`
+2. Professional-grade clothing fit comparable to Myntra
+3. Natural-looking integration of clothing on the model
+4. Processing time: 30-60 seconds (first run may be slower)
 
 ## 🎯 Quick Start
 
