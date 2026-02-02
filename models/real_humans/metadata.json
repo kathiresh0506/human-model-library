@@ -1,0 +1,33 @@
+{
+  "description": "Real human model photos for virtual try-on",
+  "structure": {
+    "male": {
+      "S": "Small size male models",
+      "M": "Medium size male models",
+      "L": "Large size male models",
+      "XL": "Extra Large size male models"
+    },
+    "female": {
+      "S": "Small size female models",
+      "M": "Medium size female models",
+      "L": "Large size female models",
+      "XL": "Extra Large size female models"
+    }
+  },
+  "photo_requirements": {
+    "format": [
+      "jpg",
+      "jpeg",
+      "png"
+    ],
+    "min_resolution": "512x768",
+    "background": "clean (white/gray preferred)",
+    "pose": "standing, front-facing",
+    "quality": "real human (not AI-generated)"
+  },
+  "sources": [
+    "Academic datasets (VITON-HD, DeepFashion)",
+    "Free stock photos (Unsplash, Pexels)",
+    "Properly licensed images"
+  ]
+}
