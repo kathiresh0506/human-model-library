@@ -166,6 +166,126 @@ class RealHumanPhotoDownloader:
             logger.info("\nNo new photos to copy from realistic models")
             return False
     
+    def fill_missing_sizes_with_duplicates(self) -> bool:
+        """
+        For missing sizes, duplicate from adjacent sizes as placeholders.
+        This ensures all categories have at least one photo.
+        
+        Returns:
+            True if any files were created
+        """
+        logger.info("=" * 60)
+        logger.info("Filling missing sizes with placeholders")
+        logger.info("=" * 60)
+        
+        import shutil
+        total_created = 0
+        
+        # Size preference order for copying (closest size first)
+        size_fallbacks = {
+            'S': ['M', 'L', 'XL'],
+            'M': ['L', 'S', 'XL'],
+            'L': ['M', 'XL', 'S'],
+            'XL': ['L', 'M', 'S']
+        }
+        
+        for gender in ['male', 'female']:
+            for size in ['S', 'M', 'L', 'XL']:
+                dst_dir = self.base_dir / gender / size
+                
+                # Check if this size already has photos
+                existing_photos = []
+                for ext in ['*.jpg', '*.jpeg', '*.png']:
+                    existing_photos.extend(list(dst_dir.glob(ext)))
+                
+                if existing_photos:
+                    logger.info(f"  ✓ {gender}/{size} already has {len(existing_photos)} photo(s)")
+                    continue
+                
+                # Try to find a source photo from fallback sizes
+                source_photo = None
+                for fallback_size in size_fallbacks[size]:
+                    fallback_dir = self.base_dir / gender / fallback_size
+                    
+                    # Find any photo in fallback size
+                    for ext in ['*.jpg', '*.jpeg', '*.png']:
+                        photos = list(fallback_dir.glob(ext))
+                        if photos:
+                            source_photo = photos[0]
+                            break
+                    
+                    if source_photo:
+                        break
+                
+                if not source_photo:
+                    logger.warning(f"  ✗ No source photos available for {gender}/{size}")
+                    continue
+                
+                # Copy the source photo as a placeholder
+                dst_file = dst_dir / f"placeholder_01{source_photo.suffix}"
+                shutil.copy2(source_photo, dst_file)
+                logger.info(f"  ✓ Created placeholder: {gender}/{size}/{dst_file.name} (from {fallback_size})")
+                total_created += 1
+        
+        if total_created > 0:
+            logger.info(f"\n✓ Created {total_created} placeholder photos")
+            logger.warning("\n⚠ Note: Placeholder photos are duplicates from other sizes.")
+            logger.info("For best results, replace with appropriate photos for each size.")
+            return True
+        else:
+            logger.info("\nAll sizes already have photos!")
+            return False
+    
+    def copy_from_generated_models(self) -> bool:
+        """
+        Copy photos from models/male and models/female directories.
+        These may be generated or other photos.
+        
+        Returns:
+            True if any files were copied
+        """
+        logger.info("=" * 60)
+        logger.info("Copying from generated models")
+        logger.info("=" * 60)
+        
+        import shutil
+        total_copied = 0
+        
+        for gender in ['male', 'female']:
+            # Look for photos in the generated models directory
+            generated_dir = Path('models') / gender
+            
+            if not generated_dir.exists():
+                continue
+            
+            # For each size directory
+            for size in ['S', 'M', 'L', 'XL']:
+                dst_dir = self.base_dir / gender / size
+                
+                # Look for any PNG or JPG files recursively in the size directory
+                src_size_dir = generated_dir / size
+                if src_size_dir.exists():
+                    for ext in ['**/*.jpg', '**/*.jpeg', '**/*.png']:
+                        for src_file in src_size_dir.glob(ext):
+                            # Generate a unique destination name
+                            base_name = f"model_{total_copied + 1:02d}"
+                            dst_file = dst_dir / f"{base_name}{src_file.suffix}"
+                            
+                            if dst_file.exists():
+                                continue
+                            
+                            # Copy file
+                            shutil.copy2(src_file, dst_file)
+                            logger.info(f"  ✓ Copied: {gender}/{size}/{dst_file.name}")
+                            total_copied += 1
+        
+        if total_copied > 0:
+            logger.info(f"\n✓ Copied {total_copied} photos from generated models")
+            return True
+        else:
+            logger.info("\nNo photos found in generated models directory")
+            return False
+    
     def download_sample_photos(self) -> bool:
         """
         Download sample photos from URLs.
@@ -431,6 +551,9 @@ def main():
     # Copy from realistic folder first (if available)
     if not args.skip_copy and not args.create_structure_only:
         downloader.copy_from_realistic_folder()
+        downloader.copy_from_generated_models()
+        # Fill missing sizes with placeholders
+        downloader.fill_missing_sizes_with_duplicates()
     
     # Download photos from URLs (if configured)
     if not args.create_structure_only and not args.skip_download:
