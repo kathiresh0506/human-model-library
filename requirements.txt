@@ -25,13 +25,19 @@ pytest-asyncio==0.23.3
 
 # Optional dependencies for advanced features
 # Uncomment if needed:
-# torch==2.1.2
-# torchvision==0.16.2
 # tensorflow==2.15.0
 
-# VITON-HD dependencies (optional, for full VITON-HD functionality)
-# Uncomment for production-quality virtual try-on:
-# torch>=1.9.0
-# torchvision>=0.10.0
-# For human parsing and segmentation:
-# scipy>=1.7.0
+# GPU-accelerated VITON-HD dependencies
+# For production-quality virtual try-on with GPU support:
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Additional dependencies for VITON-HD
+scipy>=1.7.0
+
+# Note: For CUDA support, install PyTorch with:
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+# For CPU-only: pip install torch torchvision
+
+# Optional: For downloading photos from APIs
+requests>=2.31.0
