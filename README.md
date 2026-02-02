@@ -5,6 +5,8 @@ A complete virtual try-on system for fitting clothing on pre-built human models,
 ## 🌟 Features
 
 - **Pre-built Human Model Library**: Organized by gender, size, age, and ethnicity
+- **VITON-HD Integration**: State-of-the-art virtual try-on with production-quality results
+- **VITON-Lite**: Lightweight virtual try-on with improved scaling and positioning
 - **Virtual Try-On API**: RESTful API for fitting clothing on models
 - **Intelligent Model Selection**: Automatic selection of best-matching models
 - **Size Recommendation**: Body measurement-based size recommendations
@@ -17,6 +19,7 @@ A complete virtual try-on system for fitting clothing on pre-built human models,
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [VITON-HD Integration](#viton-hd-integration)
 - [API Documentation](#api-documentation)
 - [Project Structure](#project-structure)
 - [Model Organization](#model-organization)
@@ -35,18 +38,49 @@ A complete virtual try-on system for fitting clothing on pre-built human models,
 - Python 3.8 or higher
 - pip package manager
 - (Optional) Docker for containerized deployment
+- (Optional) PyTorch with CUDA for VITON-HD (GPU recommended)
 - (Optional) MakeHuman for 3D model generation
 - (Optional) Blender for rendering
 
-### Basic Installation
+### Quick Installation (VITON-Lite)
+
+For immediate virtual try-on with improved results:
 
 ```bash
 # Clone the repository
 git clone https://github.com/kathiresh0506/human-model-library.git
 cd human-model-library
 
+# One-command setup
+python scripts/setup_viton.py
+```
+
+This sets up **VITON-Lite** - a lightweight virtual try-on system that provides:
+- ✓ Proper clothing scaling and positioning
+- ✓ Natural-looking results
+- ✓ No model weights required
+- ✓ Fast processing (1-2 seconds)
+
+### Full Installation (VITON-HD)
+
+For production-quality virtual try-on:
+
+```bash
+# Install with PyTorch support
+python scripts/setup_viton.py --full
+
+# Download VITON-HD weights (see docs/VITON_SETUP.md)
+python scripts/download_viton_models.py
+```
+
+### Manual Installation
+
+```bash
 # Install dependencies
 pip install -r requirements.txt
+
+# For VITON-HD support, also install PyTorch
+pip install torch torchvision
 ```
 
 ### Docker Installation
@@ -116,9 +150,34 @@ This creates:
 - 3 sample clothing items (2 t-shirts, 1 pants)
 - A test try-on result
 
-### Run Demo Try-On
+### Run VITON Demo (Recommended)
 
-Try different combinations:
+Try the improved VITON-based virtual try-on:
+
+```bash
+# Quick demo with auto-selected method
+python scripts/demo_viton_tryon.py
+
+# Specific person and clothing
+python scripts/demo_viton_tryon.py \
+  --person models/realistic/male_m_front_asian.jpg \
+  --clothing samples/clothing/tshirt_blue.png \
+  --comparison
+
+# Force VITON-Lite (fast, good quality)
+python scripts/demo_viton_tryon.py \
+  --method viton_lite \
+  --clothing samples/clothing/tshirt_red.png
+
+# Try multiple clothing items
+python scripts/demo_viton_tryon.py \
+  --person models/male/M/young/asian/front.png \
+  --clothing samples/clothing/*.png
+```
+
+### Run Basic Demo
+
+Try different combinations with the basic fitter:
 
 ```bash
 # Basic demo with male model and blue t-shirt
@@ -134,8 +193,105 @@ python scripts/demo_tryon.py --gender male --size L --age_group middle --ethnici
 ### View Output
 
 Check the `output/` folder for:
-- `demo_result.png` - The try-on result
-- `comparison_demo_result.png` - Side-by-side comparison
+- `viton_result.jpg` - VITON try-on result
+- `comparison_viton_result.jpg` - Side-by-side comparison
+- `demo_result.png` - Basic try-on result
+
+## 🎯 VITON-HD Integration
+
+This library now includes **VITON-HD** integration for Myntra-style professional virtual try-on!
+
+### Why VITON?
+
+The original system had limitations:
+- ❌ Models looked like cartoons
+- ❌ Clothing was tiny and mispositioned
+- ❌ Clothes appeared as stickers, not natural fits
+
+VITON solves these problems:
+- ✅ Works with real human photos
+- ✅ Proper clothing scaling and positioning
+- ✅ Realistic warping to body shape
+- ✅ Natural-looking results
+
+### Quick Start with VITON
+
+```bash
+# Setup (one command)
+python scripts/setup_viton.py
+
+# Run demo
+python scripts/demo_viton_tryon.py
+
+# Or with specific images
+python scripts/demo_viton_tryon.py \
+  --person models/realistic/male_m_front.jpg \
+  --clothing samples/clothing/tshirt_blue.png \
+  --comparison
+```
+
+### VITON Options
+
+1. **VITON-Lite** (Recommended for quick start)
+   - No model weights required
+   - Fast processing (1-2 seconds)
+   - Good quality results
+   - Works with any hardware
+
+2. **VITON-HD** (Production quality)
+   - Requires model weights download
+   - Best with GPU (5-10 seconds)
+   - Excellent quality results
+   - Myntra-quality output
+
+### Python Usage
+
+```python
+from src.clothing_fitter_viton import VITONClothingFitter
+from src.utils import ImageLoader
+
+# Initialize VITON fitter
+fitter = VITONClothingFitter()
+
+# Load images
+loader = ImageLoader()
+person = loader.load_image('models/realistic/male_m_front.jpg')
+clothing = loader.load_image('samples/clothing/tshirt_blue.png')
+
+# Perform try-on (auto-selects best method)
+result = fitter.fit_clothing(person, clothing, clothing_type='shirt')
+
+# Save result
+loader.save_image(result, 'output/result.jpg')
+
+# Or force specific method
+result = fitter.fit_clothing(person, clothing, method='viton_lite')
+```
+
+### Features Comparison
+
+| Feature | Basic Fitter | VITON-Lite | VITON-HD |
+|---------|-------------|------------|----------|
+| Setup Time | Instant | Instant | ~10 minutes |
+| Processing Speed | Fast | Fast | Medium |
+| Result Quality | Basic | Good | Excellent |
+| Weights Required | No | No | Yes (~250MB) |
+| GPU Required | No | No | Recommended |
+| Real Photo Support | Limited | Yes | Yes |
+| Proper Scaling | Basic | Yes | Yes |
+| Body Warping | Limited | Good | Excellent |
+
+### Documentation
+
+For detailed setup instructions, see: [docs/VITON_SETUP.md](docs/VITON_SETUP.md)
+
+Topics covered:
+- System requirements
+- Installation steps
+- Downloading model weights
+- Usage examples
+- Troubleshooting
+- Performance optimization
 
 ## 📚 API Documentation
 
