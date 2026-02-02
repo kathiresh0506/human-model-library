@@ -30,6 +30,7 @@ import json
 import argparse
 import logging
 import urllib.request
+import time
 from pathlib import Path
 from typing import Dict, List
 
@@ -40,58 +41,27 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Sample photo URLs from free sources
-# Using Unsplash Source API (provides random photos without API key)
-# Photos are royalty-free and suitable for virtual try-on
-# Format: https://source.unsplash.com/{width}x{height}/?{query}
-#
-# Note: Unsplash Source may return different images on each request
-# For consistent results, consider using specific Unsplash photo IDs
+# Constants
+MIN_PHOTO_SIZE_BYTES = 10240  # 10KB - minimum size to ensure real photo quality
 
-SAMPLE_PHOTO_URLS = {
-    'male': {
-        'S': [
-            'https://source.unsplash.com/512x768/?man,portrait,standing,white-background',
-            'https://source.unsplash.com/512x768/?male,model,fashion,studio',
-            'https://source.unsplash.com/512x768/?man,casual,portrait,clean-background',
-        ],
-        'M': [
-            'https://source.unsplash.com/512x768/?man,professional,portrait,studio',
-            'https://source.unsplash.com/512x768/?male,standing,fashion,white',
-            'https://source.unsplash.com/512x768/?man,business,casual,portrait',
-        ],
-        'L': [
-            'https://source.unsplash.com/512x768/?man,portrait,standing,simple-background',
-            'https://source.unsplash.com/512x768/?male,casual,fashion,studio',
-            'https://source.unsplash.com/512x768/?man,model,portrait,white-background',
-        ],
-        'XL': [
-            'https://source.unsplash.com/512x768/?man,portrait,professional,studio',
-            'https://source.unsplash.com/512x768/?male,standing,casual,clean-background',
-            'https://source.unsplash.com/512x768/?man,fashion,portrait,white',
-        ]
+
+# REAL PHOTO URLS from Unsplash
+# These are specific photo URLs that provide consistent, real human photos
+# suitable for virtual try-on (front-facing, upper body visible, clean background)
+# Photos are royalty-free and suitable for virtual try-on
+
+REAL_PHOTO_URLS = {
+    "male": {
+        "S": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=512",
+        "M": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=512",
+        "L": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=512",
+        "XL": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=512"
     },
-    'female': {
-        'S': [
-            'https://source.unsplash.com/512x768/?woman,portrait,standing,white-background',
-            'https://source.unsplash.com/512x768/?female,model,fashion,studio',
-            'https://source.unsplash.com/512x768/?woman,casual,portrait,clean-background',
-        ],
-        'M': [
-            'https://source.unsplash.com/512x768/?woman,professional,portrait,studio',
-            'https://source.unsplash.com/512x768/?female,standing,fashion,white',
-            'https://source.unsplash.com/512x768/?woman,business,casual,portrait',
-        ],
-        'L': [
-            'https://source.unsplash.com/512x768/?woman,portrait,standing,simple-background',
-            'https://source.unsplash.com/512x768/?female,casual,fashion,studio',
-            'https://source.unsplash.com/512x768/?woman,model,portrait,white-background',
-        ],
-        'XL': [
-            'https://source.unsplash.com/512x768/?woman,portrait,professional,studio',
-            'https://source.unsplash.com/512x768/?female,standing,casual,clean-background',
-            'https://source.unsplash.com/512x768/?woman,fashion,portrait,white',
-        ]
+    "female": {
+        "S": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=512",
+        "M": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=512",
+        "L": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=512",
+        "XL": "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=512"
     }
 }
 
@@ -116,6 +86,60 @@ class RealHumanPhotoDownloader:
                 size_dir.mkdir(parents=True, exist_ok=True)
         
         logger.info(f"Initialized downloader with base_dir: {self.base_dir}")
+    
+    def delete_placeholder_and_png_files(self) -> int:
+        """
+        Delete all placeholder and PNG silhouette files.
+        This removes placeholder_*.jpg, placeholder_*.png, and all .png files.
+        
+        Returns:
+            Number of files deleted
+        """
+        logger.info("=" * 60)
+        logger.info("Deleting Placeholder and PNG Silhouette Files")
+        logger.info("=" * 60)
+        
+        total_deleted = 0
+        
+        for gender in ['male', 'female']:
+            for size in ['S', 'M', 'L', 'XL']:
+                size_dir = self.base_dir / gender / size
+                
+                if not size_dir.exists():
+                    continue
+                
+                # Delete placeholder files
+                for pattern in ['placeholder_*.jpg', 'placeholder_*.png', '*.png']:
+                    for file_path in size_dir.glob(pattern):
+                        try:
+                            logger.info(f"  ✗ Deleting: {gender}/{size}/{file_path.name}")
+                            file_path.unlink()
+                            total_deleted += 1
+                        except Exception as e:
+                            logger.error(f"  Failed to delete {file_path}: {e}")
+        
+        if total_deleted > 0:
+            logger.info(f"\n✓ Deleted {total_deleted} placeholder/PNG files")
+        else:
+            logger.info("\n✓ No placeholder/PNG files found to delete")
+        
+        return total_deleted
+    
+    def _is_valid_photo(self, file_path: Path) -> bool:
+        """
+        Validate if a file is a real photo based on size.
+        
+        Args:
+            file_path: Path to the image file
+            
+        Returns:
+            True if file size > MIN_PHOTO_SIZE_BYTES, False otherwise
+        """
+        if not file_path.exists():
+            return False
+        
+        file_size = file_path.stat().st_size
+        return file_size > MIN_PHOTO_SIZE_BYTES
     
     def copy_from_realistic_folder(self) -> bool:
         """
@@ -287,81 +311,82 @@ class RealHumanPhotoDownloader:
             logger.info("\nNo photos found in generated models directory")
             return False
     
-    def download_sample_photos(self) -> bool:
+    def download_real_photos(self) -> bool:
         """
-        Download sample photos from URLs.
+        Download REAL human photos from specific Unsplash URLs.
+        Each photo is verified to be a real photograph (file size > 10KB).
         
         Returns:
             True if successful
         """
         logger.info("=" * 60)
-        logger.info("Downloading Real Human Photos")
+        logger.info("Downloading REAL Human Photos from Unsplash")
         logger.info("=" * 60)
         
         total_downloaded = 0
         
         for gender in ['male', 'female']:
             for size in ['S', 'M', 'L', 'XL']:
-                urls = SAMPLE_PHOTO_URLS.get(gender, {}).get(size, [])
+                url = REAL_PHOTO_URLS.get(gender, {}).get(size)
                 
-                if not urls:
-                    logger.info(f"No URLs configured for {gender}/{size}")
+                if not url:
+                    logger.warning(f"No URL configured for {gender}/{size}")
                     continue
                 
-                logger.info(f"\nDownloading {gender}/{size} photos...")
+                logger.info(f"\nDownloading {gender}/{size} photo...")
                 
-                for i, url in enumerate(urls):
-                    try:
-                        output_path = self.base_dir / gender / size / f"model_{i+1:02d}.jpg"
-                        
-                        if output_path.exists():
-                            logger.info(f"  ✓ Already exists: {output_path.name}")
+                try:
+                    # Output to front_001.jpg (standard naming)
+                    output_path = self.base_dir / gender / size / "front_001.jpg"
+                    
+                    if output_path.exists():
+                        # Check if existing file is valid using helper method
+                        if self._is_valid_photo(output_path):
+                            file_size = output_path.stat().st_size
+                            logger.info(f"  ✓ Already exists and valid: {output_path.name} ({file_size} bytes)")
                             total_downloaded += 1
                             continue
+                        else:
+                            file_size = output_path.stat().st_size
+                            logger.warning(f"  ⚠ Existing file is too small ({file_size} bytes), re-downloading...")
+                    
+                    logger.info(f"  Downloading from: {url}")
+                    
+                    # Use urllib with headers to avoid being blocked
+                    req = urllib.request.Request(
+                        url,
+                        headers={
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    )
+                    
+                    with urllib.request.urlopen(req, timeout=30) as response:
+                        img_data = response.read()
                         
-                        logger.info(f"  Downloading from: {url}")
-                        
-                        # Use urllib with headers to avoid being blocked
-                        req = urllib.request.Request(
-                            url,
-                            headers={
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                            }
-                        )
-                        
-                        with urllib.request.urlopen(req, timeout=30) as response:
-                            img_data = response.read()
-                            
-                            # Detect image format from response headers
-                            content_type = response.headers.get('Content-Type', '')
-                            if 'png' in content_type.lower():
-                                ext = '.png'
-                            elif 'jpeg' in content_type.lower() or 'jpg' in content_type.lower():
-                                ext = '.jpg'
-                            else:
-                                # Default to jpg if unknown
-                                ext = '.jpg'
-                            
-                            # Update output path with correct extension
-                            output_path = output_path.with_suffix(ext)
-                            
-                        # Save the image
-                        with open(output_path, 'wb') as f:
-                            f.write(img_data)
-                            
-                        logger.info(f"  ✓ Saved: {output_path.name}")
-                        total_downloaded += 1
-                        
-                        # Small delay to avoid rate limiting
-                        import time
-                        time.sleep(1)
-                        
-                    except urllib.error.URLError as e:
-                        logger.error(f"  ✗ Network error downloading {url}: {e}")
-                    except Exception as e:
-                        logger.error(f"  ✗ Failed to download {url}: {e}")
+                        # Verify this is a real photo (file size > MIN_PHOTO_SIZE_BYTES)
+                        if len(img_data) < MIN_PHOTO_SIZE_BYTES:
+                            logger.error(f"  ✗ Downloaded file too small ({len(img_data)} bytes), likely not a real photo")
+                            continue
+                    
+                    # Save the image as JPG
+                    with open(output_path, 'wb') as f:
+                        f.write(img_data)
+                    
+                    file_size = output_path.stat().st_size
+                    logger.info(f"  ✓ Saved: {output_path.name} ({file_size} bytes)")
+                    total_downloaded += 1
+                    
+                    # Small delay to avoid rate limiting
+                    time.sleep(1)
+                    
+                except urllib.error.URLError as e:
+                    logger.error(f"  ✗ Network error downloading {url}: {e}")
+                except Exception as e:
+                    logger.error(f"  ✗ Failed to download {url}: {e}")
         
-        logger.info(f"\nDownloaded {total_downloaded} photos")
+        logger.info(f"\n{'='*60}")
+        logger.info(f"Download Summary: {total_downloaded}/8 photos successfully downloaded")
+        logger.info(f"{'='*60}")
         return total_downloaded > 0
     
     def create_placeholder_structure(self) -> bool:
@@ -527,7 +552,7 @@ Add 3-5 photos for best results.
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Download real human model photos"
+        description="Download real human model photos from Unsplash"
     )
     parser.add_argument(
         '--base-dir',
@@ -541,14 +566,9 @@ def main():
         help='Only create directory structure without downloading'
     )
     parser.add_argument(
-        '--skip-copy',
-        action='store_true',
-        help='Skip copying from models/realistic folder'
-    )
-    parser.add_argument(
         '--skip-download',
         action='store_true',
-        help='Skip downloading from URLs (only copy existing)'
+        help='Skip downloading from URLs (keep existing photos only)'
     )
     
     args = parser.parse_args()
@@ -562,17 +582,14 @@ def main():
     # Create metadata
     downloader.create_metadata()
     
-    # Copy from realistic folder first (if available)
-    if not args.skip_copy and not args.create_structure_only:
-        downloader.copy_from_realistic_folder()
-        downloader.copy_from_generated_models()
-        # Fill missing sizes with placeholders
-        downloader.fill_missing_sizes_with_duplicates()
+    # Step 1: Delete all placeholder and PNG silhouette files
+    if not args.create_structure_only:
+        downloader.delete_placeholder_and_png_files()
     
-    # Download photos from URLs (if configured)
+    # Step 2: Download REAL human photos from Unsplash
     if not args.create_structure_only and not args.skip_download:
         try:
-            downloader.download_sample_photos()
+            downloader.download_real_photos()
         except Exception as e:
             logger.warning(f"Photo download encountered issues: {e}")
             logger.info("Continuing with existing photos...")
@@ -589,7 +606,7 @@ def main():
     logger.info("=" * 60)
     
     if total_photos > 0:
-        logger.info(f"\n✅ Setup complete! {total_photos} photos ready.")
+        logger.info(f"\n✅ Setup complete! {total_photos} REAL human photos ready.")
         logger.info("\nYou can now run virtual try-on:")
         logger.info("  python scripts/demo_idm_vton.py --clothing samples/clothing/tshirt_blue.png")
         logger.info("\nOr specify gender/size:")
@@ -599,13 +616,11 @@ def main():
         logger.info("\nOptions to add photos:")
         logger.info("\n1. Download from free sources (requires internet):")
         logger.info("   - Try running this script again without --skip-download")
-        logger.info("   - Photos will be downloaded from Unsplash (free API)")
+        logger.info("   - Photos will be downloaded from Unsplash")
         logger.info("\n2. Manually add photos:")
         logger.info(f"   - Navigate to {downloader.base_dir}")
         logger.info("   - Add photos to appropriate gender/size directories")
         logger.info("   - Follow README.md instructions in each directory")
-        logger.info("\n3. Use existing realistic models:")
-        logger.info("   - Run: python scripts/demo_idm_vton.py --base-dir models/realistic")
     
     logger.info("\n" + "=" * 60)
 
