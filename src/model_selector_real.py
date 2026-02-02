@@ -24,7 +24,8 @@ class RealModelSelector:
         Initialize real model selector.
         
         Args:
-            base_dir: Base directory for realistic models
+            base_dir: Base directory for realistic models.
+                     Can be 'models/realistic' or 'models/real_humans'
         """
         self.base_dir = Path(base_dir)
         
@@ -259,6 +260,26 @@ class RealModelSelector:
             logger.error(f"Error loading model image: {e}")
             return None
     
+    def list_available(self) -> dict:
+        """
+        List all available real human models.
+        
+        Returns:
+            Dictionary with counts per gender/size
+        """
+        available = {}
+        for gender in ["male", "female"]:
+            available[gender] = {}
+            for size in ["S", "M", "L", "XL"]:
+                model_dir = self.base_dir / gender / size
+                if model_dir.exists():
+                    # Count files without creating intermediate lists
+                    count = sum(1 for _ in model_dir.glob('*.[jp][pn][g]'))
+                    available[gender][size] = count
+                else:
+                    available[gender][size] = 0
+        return available
+
     def select_random_model(self) -> Optional[str]:
         """
         Select a completely random model from entire library.
